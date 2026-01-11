@@ -339,3 +339,22 @@
             document.getElementById('detail-text').innerText = m.overview;
             document.getElementById('movie-detail-modal').style.display = 'flex';
         }
+
+        // --- ADMIN LOGIC ---
+        function loadAdminTable() {
+            fetch(`${API_URL}/users`).then(r=>r.json()).then(users => {
+                const tb = document.getElementById('adm-body'); tb.innerHTML = '';
+                const curr = JSON.parse(localStorage.getItem('user'));
+                users.forEach(u => {
+                    const btn = u.username === curr.username ? '-' : `<button onclick="del('${u.username}')" style="background:red;padding:5px;width:auto;margin:0;">Hapus</button>`;
+                    tb.innerHTML += `<tr><td>${u.username}</td><td>${u.role}</td><td><code style="color:#aaa">${u.apiKey}</code></td><td>${btn}</td></tr>`;
+                });
+            });
+        }
+        async function del(n) { if(confirm('Hapus?')) { await fetch(`${API_URL}/users/${n}`, {method:'DELETE'}); loadAdminTable(); } }
+
+        const saved = localStorage.getItem('user');
+        if(saved) loadApp(JSON.parse(saved));
+    </script>
+</body>
+</html>
