@@ -61,3 +61,17 @@ app.post('/api/login', (req, res) => {
         res.status(401).json({ message: 'Username atau password salah!' });
     }
 });
+
+// 3. LOGIN API KEY (Endpoint ini yang sebelumnya hilang!)
+app.post('/api/login-key', (req, res) => {
+    const { apiKey } = req.body;
+    const users = readUsers();
+    // Cari user yang punya API Key sama
+    const user = users.find(u => u.apiKey === apiKey);
+
+    if (user) {
+        res.json({ message: 'Login Key sukses', username: user.username, role: user.role, apiKey: user.apiKey });
+    } else {
+        res.status(401).json({ message: 'API Key tidak valid!' });
+    }
+});
