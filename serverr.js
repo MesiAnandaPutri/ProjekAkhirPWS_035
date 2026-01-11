@@ -48,3 +48,16 @@ app.post('/api/register', (req, res) => {
 
     res.json({ message: 'Registrasi berhasil!', apiKey: newApiKey, role });
 });
+
+// 2. LOGIN BIASA
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    const users = readUsers();
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (user) {
+        res.json({ message: 'Login sukses', username: user.username, role: user.role, apiKey: user.apiKey });
+    } else {
+        res.status(401).json({ message: 'Username atau password salah!' });
+    }
+});
