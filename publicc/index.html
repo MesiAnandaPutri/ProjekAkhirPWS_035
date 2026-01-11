@@ -287,3 +287,55 @@
                 loadGenres(); // Panggil fungsi genre
             }
         }
+
+        // --- MOVIE LOGIC (SEARCH & FILTER) ---
+        function loadGenres() {
+            fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_KEY}`)
+            .then(r => r.json()).then(data => {
+                const select = document.getElementById('genre-select');
+                if(!select) return;
+                data.genres.forEach(g => {
+                    const opt = document.createElement('option'); opt.value = g.id; opt.innerText = g.name;
+                    select.appendChild(opt);
+                });
+            });
+        }
+
+        function filterBy(cat) {
+            document.getElementById('genre-select').value = ""; document.getElementById('movie-search').value = "";
+            let url = `https://api.themoviedb.org/3/movie/${cat}?api_key=${TMDB_KEY}`;
+            fetchMovies(url);
+        }
+
+        function filterByGenre() {
+            const gid = document.getElementById('genre-select').value;
+            document.getElementById('movie-search').value = "";
+            if(gid) fetchMovies(`https://api.themoviedb.org/3/discover/movie?with_genres=${gid}&api_key=${TMDB_KEY}`);
+        }
+
+        function searchFilm() {
+            const q = document.getElementById('movie-search').value;
+            fetchMovies(q ? `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${q}` : `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_KEY}`);
+        }
+
+        function fetchMovies(url) {
+            fetch(url).then(r=>r.json()).then(d => {
+                currentMovieList = d.results || [];
+                const g = document.getElementById('m-grid'); g.innerHTML = '';
+                if(!currentMovieList.length) g.innerHTML = '<p>Kosong</p>';
+                currentMovieList.forEach((m,i) => {
+                    const poster = m.poster_path ? `https://image.tmdb.org/t/p/w300${m.poster_path}` : 'https://via.placeholder.com/200';
+                    g.innerHTML += `<div class="movie" onclick="showDetail(${i})"><img src="${poster}"><div class="movie-info"><b>${m.title}</b><br>⭐ ${m.vote_average}</div></div>`;
+                });
+            });
+        }
+        
+        function showDetail(i) {
+            const m = currentMovieList[i];
+            document.getElementById('detail-poster').src = m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : '';
+            document.getElementById('detail-title').innerText = m.title;
+            document.getElementById('detail-rating').innerText = m.vote_average;
+            document.getElementById('detail-date').innerText = m.release_date;
+            document.getElementById('detail-text').innerText = m.overview;
+            document.getElementById('movie-detail-modal').style.display = 'flex';
+        }
