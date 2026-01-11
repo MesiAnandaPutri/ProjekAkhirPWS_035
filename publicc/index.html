@@ -242,3 +242,48 @@
                 output.innerText = `Status: ${res.status}\n\n` + JSON.stringify(data, null, 2);
             } catch(err) { output.innerText = "Error:\n" + err.message; }
         }
+
+        // --- STANDARD APP LOGIC ---
+        function toggleAuth() {
+            const l = document.getElementById('login-box'); const r = document.getElementById('register-box');
+            l.style.display = (l.style.display === 'none') ? 'block' : 'none'; r.style.display = (l.style.display === 'none') ? 'block' : 'none';
+        }
+        function closeApiKeyModal() { document.getElementById('success-modal').style.display = 'none'; toggleAuth(); document.getElementById('login-apikey').value = document.getElementById('generated-key').innerText; }
+        function closeMovieModal() { document.getElementById('movie-detail-modal').style.display = 'none'; }
+        function logout() { localStorage.removeItem('user'); location.reload(); }
+
+        function loadApp(user) {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('display-username').innerText = user.username;
+            document.getElementById('display-role').innerText = user.role;
+
+            const content = document.getElementById('content-area');
+            if(user.role === 'admin') {
+                content.innerHTML = `<h2>Dashboard Admin</h2><p>Data User:</p><table id="adm-table"><thead><tr><th>User</th><th>Role</th><th>API Key</th><th>Action</th></tr></thead><tbody id="adm-body"></tbody></table>`;
+                loadAdminTable();
+            } else {
+                // USER DASHBOARD DENGAN SEARCH & FILTER
+                content.innerHTML = `
+                    <div style="text-align:center;">
+                        <h2>🎬 Cari Film Favorit</h2>
+                        <div class="search-wrapper">
+                            <input type="text" id="movie-search" placeholder="Cari judul..." style="flex:1;">
+                            <button onclick="searchFilm()">Cari</button>
+                        </div>
+                        
+                        <div class="filter-container">
+                            <button class="filter-btn active" onclick="filterBy('popular')">🔥 Populer</button>
+                            <button class="filter-btn" onclick="filterBy('top_rated')">⭐ Rating Terbaik</button>
+                            <button class="filter-btn" onclick="filterBy('now_playing')">🆕 Terbaru</button>
+                            <select id="genre-select" class="filter-select" onchange="filterByGenre()">
+                                <option value="">📂 Pilih Genre...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="movie-grid" id="m-grid">Loading...</div>
+                `;
+                fetchMovies(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_KEY}`);
+                loadGenres(); // Panggil fungsi genre
+            }
+        }
