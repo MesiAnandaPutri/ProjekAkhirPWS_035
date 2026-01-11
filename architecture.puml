@@ -1,0 +1,44 @@
+@startuml
+skinparam componentStyle rectangle
+
+' --- 1. CLIENT SIDE (FRONTEND) ---
+package "Client Side (Frontend)" {
+    component "Main Movie App\n(index.html)" as App
+    component "API Explorer UI\n(Testing Tool)" as Explorer
+}
+
+' --- 2. SERVER SIDE (BACKEND) ---
+package "Server Side (Backend)" {
+    component "Node.js Express Server\n(index.js)" as Server
+    
+    ' Logic Internal Server
+    component "Auth Middleware\n(Cek Login & API Key)" as Auth
+    component "File System Handler\n(fs module)" as FSHandler
+}
+
+' --- 3. DATA STORAGE ---
+package "Data Storage" {
+    file "users.json\n(Local Database)" as JSONDB
+}
+
+' --- 4. EXTERNAL API (TMDB) ---
+' Tambahan penting karena film diambil dari sini
+cloud "TMDB API\n(Movie Data)" as TMDB
+
+' --- RELASI / ALUR DATA ---
+
+' Alur Frontend ke Backend
+App --> Server : Login / Register / Get Users
+Explorer --> Server : Test API Endpoints
+
+' Alur Server Internal
+Server --> Auth : Validasi Request
+Auth --> FSHandler : Jika Valid, Baca/Tulis Data
+
+' Alur ke Database
+FSHandler --> JSONDB : Read / Write Data
+
+' Alur Fetch Film (Langsung dari Frontend sesuai kode Anda)
+App ..> TMDB : Fetch Popular Movies / Search
+
+@enduml

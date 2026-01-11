@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+' --- ACTORS ---
+actor Admin
+actor "User (Movie Fan)" as User
+
+' CATATAN: Inheritance (Admin --|> User) SUDAH DIHAPUS
+
+rectangle "Sistem API Film Pro" {
+
+    ' --- CORE USE CASE (Digunakan Admin & User) ---
+    usecase "Register & Login" as UC_Auth
+
+    ' --- ADMIN USE CASES ---
+    usecase "View All Users List" as UC_ViewUsers
+    usecase "Delete Users" as UC_ManageUsers
+
+    ' --- USER USE CASES ---
+    usecase "View Dashboard" as UC_Dashboard
+    usecase "Search & Filter Movies" as UC_Search
+    usecase "Access API Explorer" as UC_Explorer
+
+    ' --- SUB USE CASES ---
+    usecase "Copy API Key" as UC_CopyKey
+    usecase "Login via API Key" as UC_LoginKey
+
+    ' --- CONNECTIONS (Admin) ---
+    ' Admin sekarang punya akses eksplisit ke Login
+    Admin --> UC_Auth 
+    Admin --> UC_ViewUsers
+    Admin --> UC_ManageUsers
+
+    ' --- CONNECTIONS (User) ---
+    User --> UC_Auth
+    User --> UC_Dashboard
+    User --> UC_Search
+    User --> UC_Explorer
+
+    ' --- RELATIONSHIPS (Includes/Extends) ---
+    UC_Dashboard ..> UC_CopyKey : <<include>>
+    UC_Auth <.. UC_LoginKey : <<extend>>
+
+}
+@enduml

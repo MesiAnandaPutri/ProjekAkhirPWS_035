@@ -1,0 +1,89 @@
+@startuml
+title Flowchart Sistem API Film Pro
+skinparam linetype ortho
+
+start
+
+:Buka Aplikasi (index.html);
+
+if (Sudah Punya Akun?) then (Belum)
+  partition "Proses Registrasi" {
+    :Klik "Daftar Akun Baru";
+    :Input Username, Password, Role;
+    :Request POST /api/register;
+    
+    ' Logika Backend index.js
+    if (Username Ada di users.json?) then (Ya)
+      :Return Error "Username Dipakai";
+      :Alert ke User;
+      stop
+    else (Tidak)
+      :Generate Random API Key (Crypto);
+      :Push Data ke Array;
+      :Write File users.json;
+      :Tampilkan Modal "Sukses" + API Key;
+    endif
+  }
+endif
+
+partition "Proses Login" {
+  :User Memilih Metode Login;
+  
+  if (Login via API Key?) then (Ya)
+    :Input API Key;
+    :Request POST /api/login-key;
+  else (Username & Password)
+    :Input Username & Password;
+    :Request POST /api/login;
+  endif
+
+  ' Logika Validasi Backend
+  if (Data Ditemukan di users.json?) then (Tidak)
+    :Return 401 Unauthorized;
+    :Alert "Gagal Login";
+    stop
+  else (Ya)
+    :Return 200 OK (User Data);
+    :Simpan User ke LocalStorage;
+    :Load App Dashboard;
+  endif
+}
+
+partition "Dashboard Area" {
+  if (Cek Role User?) then (ADMIN)
+    :Tampilkan Layout Admin;
+    :Request GET /api/users;
+    :Baca File users.json;
+    :Render Tabel List User;
+    
+    if (Klik Tombol Hapus?) then (Ya)
+      :Request DELETE /api/users/:username;
+      :Filter Array & Write users.json;
+      :Update Tampilan Tabel;
+    endif
+    
+  else (USER)
+    :Tampilkan Layout Pencarian Film;
+    
+    fork
+      :User Ketik Judul / Pilih Filter;
+      :Fetch TMDB API (Eksternal);
+      :Render Grid Film;
+      if (Klik Poster Film?) then (Ya)
+        :Tampilkan Modal Detail Film;
+      endif
+    fork again
+      :Klik "API Explorer";
+      :Pilih Endpoint & Kirim JSON Body;
+      :Server Proses & Return Response;
+      :Tampilkan Hasil JSON;
+    end fork
+  endif
+}
+
+:Klik Logout;
+:Hapus LocalStorage;
+:Reload Halaman;
+
+stop
+@enduml

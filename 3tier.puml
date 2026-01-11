@@ -1,0 +1,62 @@
+@startuml
+skinparam linetype ortho
+skinparam componentStyle rectangle
+skinparam packageStyle folder
+
+' Judul Diagram
+title Three-Tier Architecture - Sistem API Film Pro
+
+' --- TIER 1: PRESENTATION LAYER (Client) ---
+package "Tier 1: Presentation Layer\n(Client Side / Browser)" as Tier1 {
+    component "User Interface (UI)" as UI {
+        [index.html]
+        [CSS Styles]
+    }
+    
+    component "Client Logic (JS)" as ClientJS {
+        [Auth Handler (Login/Register)]
+        [Movie Fetcher (TMDB Integration)]
+    }
+}
+
+' --- TIER 2: APPLICATION LAYER (Server) ---
+package "Tier 2: Application Layer\n(Server Side / Node.js)" as Tier2 {
+    component "Web Server" as Server {
+        [Express App]
+    }
+    
+    component "Business Logic" as Logic {
+        [API Routes (/api/*)]
+        [Auth Controller (Crypto)]
+        [Data Access Object (fs module)]
+    }
+}
+
+' --- TIER 3: DATA LAYER (Storage) ---
+package "Tier 3: Data Layer\n(File System)" as Tier3 {
+    database "Local Storage" {
+        file "users.json" as DB
+    }
+}
+
+' --- EXTERNAL SERVICE ---
+cloud "TMDB Public API" as External
+
+' --- RELASI ANTAR TIER ---
+
+' 1. Client ke Server (Auth & User Data)
+ClientJS --> Server : 1. HTTP Request (JSON)\nPOST /login, /register
+Server --> Logic : 2. Process Request
+
+' 2. Server ke Data (Read/Write JSON)
+Logic --> DB : 3. fs.readFileSync()\nfs.writeFileSync()
+DB --> Logic : 4. Return Data
+
+' 3. Server Response balik ke Client
+Logic --> Server
+Server --> ClientJS : 5. HTTP Response (JSON)\n{token, role, msg}
+
+' 4. Client ke External (Fetch Movie) - Bypass Tier 2
+ClientJS ..> External : Fetch Movies (Direct)
+
+@enduml

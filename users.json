@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1767588954687,
+    "username": "kk",
+    "password": "123",
+    "role": "user",
+    "apiKey": "sk-pws-e5171eead0e3636b70819341747c71c6"
+  },
+  {
+    "id": 1767592912849,
+    "username": "nnd",
+    "password": "123",
+    "role": "admin",
+    "apiKey": "sk-pws-5aa911d0a3a7938def20e620a67e2d31"
+  },
+  {
+    "id": 1768010875011,
+    "username": "coba user",
+    "password": "123",
+    "role": "user",
+    "apiKey": "sk-pws-5c007f10caffb7be4776eec0d94241b7"
+  },
+  {
+    "id": 1768010904451,
+    "username": "user_baru",
+    "password": "123",
+    "role": "user",
+    "apiKey": "sk-pws-20b0e8221a2652aad191ae843b78ad18"
+  },
+  {
+    "id": 1768011249330,
+    "username": "tes",
+    "password": "123",
+    "role": "user",
+    "apiKey": "sk-pws-2bab39954bb4600e61a7e11b7e8ec9de"
+  },
+  {
+    "id": 1768011381290,
+    "username": "apaya",
+    "password": "123",
+    "role": "user",
+    "apiKey": "sk-pws-17a3ed844d5063378291304b7de7ea7b"
+  }
+]

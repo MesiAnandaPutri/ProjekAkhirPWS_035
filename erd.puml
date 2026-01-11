@@ -1,0 +1,29 @@
+@startuml
+skinparam linetype ortho
+skinparam packageStyle rectangle
+hide circle
+
+' --- ENTITAS 1: USERS ---
+entity "Users" as user {
+    *user_id : BIGINT <<PK>>
+    --
+    *username : VARCHAR(50)
+    *password : VARCHAR(255)
+    *role : ENUM('admin', 'user')
+}
+
+' --- ENTITAS 2: API KEYS ---
+' (Dipisah agar memenuhi syarat minimal 2 entitas)
+entity "ApiKeys" as apikey {
+    *key_id : BIGINT <<PK>>
+    --
+    *user_id : BIGINT <<FK>>
+    *key_string : VARCHAR(100)
+    created_at : TIMESTAMP
+}
+
+' --- RELASI (One-to-One) ---
+' Satu User memiliki Satu API Key
+user ||..|| apikey : "has"
+
+@enduml
