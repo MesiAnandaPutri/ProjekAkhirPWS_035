@@ -198,3 +198,47 @@
                 } else alert(data.message);
             } catch(e) { alert("Server Error"); }
         }
+
+        // --- API EXPLORER LOGIC ---
+        function toggleExplorer() {
+            isExplorerOpen = !isExplorerOpen;
+            const explorer = document.getElementById('explorer-view');
+            const main = document.getElementById('main-view');
+            const btn = document.querySelector('header button');
+
+            if(isExplorerOpen) {
+                explorer.style.display = 'block'; main.style.display = 'none';
+                btn.innerText = "🏠 Kembali ke App"; btn.style.background = "#3498db";
+            } else {
+                explorer.style.display = 'none'; main.style.display = 'block';
+                btn.innerText = "🛠 API Explorer"; btn.style.background = "#2ecc71";
+            }
+        }
+
+        function loadApiTemplate() {
+            const val = document.getElementById('api-selector').value;
+            const bodyArea = document.getElementById('api-body');
+            if(!val) { bodyArea.value = ""; return; }
+            const [method, path] = val.split('|');
+            if(path.includes('register')) bodyArea.value = JSON.stringify({ username: "tes", password: "123", role: "user" }, null, 2);
+            else if(path.includes('login-key')) bodyArea.value = JSON.stringify({ apiKey: "API_KEY_KAMU" }, null, 2);
+            else if(path.includes('login')) bodyArea.value = JSON.stringify({ username: "tes", password: "123" }, null, 2);
+            else bodyArea.value = "// Tidak butuh body";
+        }
+
+        async function sendApiRequest() {
+            const val = document.getElementById('api-selector').value;
+            const bodyRaw = document.getElementById('api-body').value;
+            const output = document.getElementById('api-response');
+            if(!val) return alert("Pilih endpoint!");
+            const [method, path] = val.split('|');
+            output.innerText = "⏳ Mengirim...";
+
+            try {
+                let options = { method: method, headers: { 'Content-Type': 'application/json' } };
+                if(method !== 'GET' && method !== 'DELETE') options.body = bodyRaw;
+                const res = await fetch(`http://localhost:3000${path}`, options);
+                const data = await res.json();
+                output.innerText = `Status: ${res.status}\n\n` + JSON.stringify(data, null, 2);
+            } catch(err) { output.innerText = "Error:\n" + err.message; }
+        }
