@@ -75,3 +75,16 @@ app.post('/api/login-key', (req, res) => {
         res.status(401).json({ message: 'API Key tidak valid!' });
     }
 });
+
+// 4. GET USERS & DELETE (Admin)
+app.get('/api/users', (req, res) => res.json(readUsers()));
+
+app.delete('/api/users/:username', (req, res) => {
+    const users = readUsers();
+    const newUsers = users.filter(u => u.username !== req.params.username);
+    writeUsers(newUsers);
+    res.json({ message: 'Dihapus' });
+});
+
+// Jalankan Server
+app.listen(PORT, () => console.log(`Server nyala di http://localhost:${PORT}`));
