@@ -18,7 +18,25 @@
         
         button { width: 100%; padding: 14px; background: linear-gradient(to right, #007bff, #0056b3); border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 6px; margin-top: 15px; font-size: 1rem; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,123,255,0.3); }
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,123,255,0.4); }
+        button.secondary-btn { background: #444; box-shadow: none; }
+        button.secondary-btn:hover { background: #555; }
         
+        /* PANDUAN STEP BY STEP DI REGISTER */
+        .steps-guide { 
+            text-align: left; 
+            background: #1f2235; 
+            padding: 12px; 
+            border-radius: 8px; 
+            font-size: 0.85rem; 
+            color: #ccc; 
+            margin-bottom: 20px; 
+            border: 1px solid #444; 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+        .steps-guide h4 { margin: 0 0 8px 0; color: #4facfe; font-size: 0.95rem; }
+        .steps-guide ol { padding-left: 20px; margin: 0; }
+        .steps-guide li { margin-bottom: 4px; line-height: 1.4; }
+
         /* EXTRAS */
         .divider { display: flex; align-items: center; margin: 15px 0; color: #888; font-size: 0.8rem; }
         .divider::before, .divider::after { content: ""; flex: 1; border-bottom: 1px solid #444; }
@@ -29,6 +47,9 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
         .modal-content { background: #252a41; padding: 30px; border-radius: 12px; text-align: center; width: 100%; max-width: 450px; border: 1px solid #4facfe; box-shadow: 0 0 20px rgba(79, 172, 254, 0.3); position: relative; }
         .apikey-box { background: #000; color: #00ff00; padding: 15px; border-radius: 6px; font-family: monospace; word-break: break-all; margin: 15px 0; border: 1px dashed #444; font-size: 1.1rem; }
+
+        /* STEPPER STYLES DALAM MODAL */
+        .step-indicator { font-size: 0.8rem; color: #aaa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
 
         /* HEADER */
         #app-container { display: none; padding: 20px; }
@@ -78,10 +99,22 @@
 
     <div id="success-modal" class="modal-overlay">
         <div class="modal-content">
-            <h2>🎉 Registrasi Berhasil!</h2>
-            <p>Salin API Key ini:</p>
-            <div id="generated-key" class="apikey-box">...</div>
-            <button onclick="closeApiKeyModal()">Salin & Masuk</button>
+            <div id="modal-step-1">
+                <div class="step-indicator">Langkah 1 dari 2</div>
+                <h2>🎉 Registrasi Berhasil!</h2>
+                <p>Ini adalah <b>Kunci Akses (API Key)</b> Anda.<br>Wajib disalin untuk login.</p>
+                <div id="generated-key" class="apikey-box">...</div>
+                <button onclick="copyKeyNext()">📄 Salin API Key</button>
+            </div>
+
+            <div id="modal-step-2" style="display: none;">
+                <div class="step-indicator">Langkah 2 dari 2</div>
+                <h2 style="color: #2ecc71;">✅ Berhasil Disalin!</h2>
+                <p>API Key sudah tersimpan di clipboard.</p>
+                <p style="color:#aaa; font-size:0.9rem;">Klik tombol di bawah untuk langsung menempelkan Key ke halaman Login.</p>
+                <button onclick="autoFillLogin()">🚀 Tempel & Masuk</button>
+                <button onclick="closeModalOnly()" class="secondary-btn" style="margin-top:10px;">Tutup Saja</button>
+            </div>
         </div>
     </div>
 
@@ -100,6 +133,7 @@
     </div>
 
     <div id="auth-container">
+        
         <div class="auth-box" id="login-box">
             <h2>Masuk Sistem</h2>
             <input type="text" id="login-user" placeholder="Username">
@@ -111,12 +145,29 @@
         </div>
 
         <div class="auth-box" id="register-box" style="display: none;">
-            <h2>Registrasi</h2>
-            <input type="text" id="reg-user" placeholder="Username">
-            <input type="password" id="reg-pass" placeholder="Password">
-            <select id="reg-role"><option value="user">User</option><option value="admin">Admin</option></select>
-            <button onclick="register()">Daftar</button>
-            <div class="toggle-link" onclick="toggleAuth()">Sudah punya akun? Login</div>
+            <h2>📝 Registrasi Akun</h2>
+            
+            <div class="steps-guide">
+                <h4>📋 Langkah Pendaftaran:</h4>
+                <ol>
+                    <li>Isi Username & Password di bawah.</li>
+                    <li>Klik tombol <b>Daftar</b>.</li>
+                    <li>Sistem akan memberi <b>API Key</b>.</li>
+                    <li><b>Salin Key</b> tersebut untuk Login.</li>
+                </ol>
+            </div>
+        
+            <input type="text" id="reg-user" placeholder="Username Baru">
+            <input type="password" id="reg-pass" placeholder="Password Baru">
+            
+            <div style="text-align: left; font-size: 0.8rem; color: #aaa; margin-top: 5px;">Pilih Role:</div>
+            <select id="reg-role">
+                <option value="user">User Biasa</option>
+                <option value="admin">Admin</option>
+            </select>
+        
+            <button onclick="register()">Daftar & Dapat Key 🔑</button>
+            <div class="toggle-link" onclick="toggleAuth()">Sudah punya akun? Login di sini</div>
         </div>
     </div>
 
@@ -165,6 +216,7 @@
         const TMDB_KEY = '87764673ce6b73c72c2ff32f1a91da7b';
         let currentMovieList = []; 
         let isExplorerOpen = false;
+        let tempApiKey = ""; // Variabel sementara untuk menyimpan KEY
 
         // --- AUTH ---
         async function handleLogin() {
@@ -193,10 +245,42 @@
                 const res = await fetch(`${API_URL}/register`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({username:u, password:p, role:r}) });
                 const data = await res.json();
                 if(res.ok) {
-                    document.getElementById('generated-key').innerText = data.apiKey;
+                    // STEP 1: Tampilkan Step 1
+                    tempApiKey = data.apiKey; // Simpan di memori
+                    document.getElementById('generated-key').innerText = tempApiKey;
+                    
+                    document.getElementById('modal-step-1').style.display = 'block';
+                    document.getElementById('modal-step-2').style.display = 'none';
                     document.getElementById('success-modal').style.display = 'flex';
                 } else alert(data.message);
             } catch(e) { alert("Server Error"); }
+        }
+
+        // --- FUNGSI BARU UNTUK STEP BY STEP REGISTRASI ---
+        function copyKeyNext() {
+            // Salin ke clipboard
+            navigator.clipboard.writeText(tempApiKey).then(() => {
+                // Pindah ke Step 2
+                document.getElementById('modal-step-1').style.display = 'none';
+                document.getElementById('modal-step-2').style.display = 'block';
+            }).catch(err => {
+                alert('Gagal menyalin otomatis, silakan blok dan copy manual.');
+            });
+        }
+
+        function autoFillLogin() {
+            document.getElementById('success-modal').style.display = 'none';
+            // Pindah tampilan dari Register Box ke Login Box
+            toggleAuth(); 
+            // Isi otomatis input login
+            document.getElementById('login-apikey').value = tempApiKey;
+            // Fokuskan kursor ke tombol login atau input (opsional)
+            alert("API Key sudah ditempel! Silakan klik Masuk.");
+        }
+
+        function closeModalOnly() {
+            document.getElementById('success-modal').style.display = 'none';
+            toggleAuth(); // Tetap pindah ke login screen
         }
 
         // --- API EXPLORER LOGIC ---
@@ -246,9 +330,17 @@
         // --- STANDARD APP LOGIC ---
         function toggleAuth() {
             const l = document.getElementById('login-box'); const r = document.getElementById('register-box');
-            l.style.display = (l.style.display === 'none') ? 'block' : 'none'; r.style.display = (l.style.display === 'none') ? 'block' : 'none';
+            
+            // Logika sederhana: jika Login hidden, tampilkan Login. 
+            if (l.style.display === 'none') {
+                l.style.display = 'block';
+                r.style.display = 'none';
+            } else {
+                l.style.display = 'none';
+                r.style.display = 'block';
+            }
         }
-        function closeApiKeyModal() { document.getElementById('success-modal').style.display = 'none'; toggleAuth(); document.getElementById('login-apikey').value = document.getElementById('generated-key').innerText; }
+        
         function closeMovieModal() { document.getElementById('movie-detail-modal').style.display = 'none'; }
         function logout() { localStorage.removeItem('user'); location.reload(); }
 
